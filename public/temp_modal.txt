@@ -1,0 +1,29 @@
+
+    <!-- 修改密码模态框 -->
+    <div id="changePasswordModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>修改密码</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="oldPassword">原密码 *</label>
+                    <input type="password" id="oldPassword" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="newPassword">新密码 *</label>
+                    <input type="password" id="newPassword" class="form-control" required>
+                    <p class="form-hint">密码长度6-20位，必须包含字母和数字</p>
+                </div>
+                <div class="form-group">
+                    <label for="confirmPassword">确认新密码 *</label>
+                    <input type="password" id="confirmPassword" class="form-control" required>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline modal-cancel">取消</button>
+                <button id="submitChangePasswordBtn" class="btn btn-primary">确定</button>
+            </div>
+        </div>
+    </div>

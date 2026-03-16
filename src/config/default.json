@@ -1,0 +1,25 @@
+{
+  "system": {
+    "port": 3000,
+    "host": "0.0.0.0",
+    "maxConcurrent": 4,
+    "maxFileSize": 2147483648,
+    "sessionSecret": "ffmpeg-studio-secret-key-change-in-production",
+    "tokenExpire": 86400
+  },
+  "storage": {
+    "uploadDir": "./temp/uploads",
+    "outputDir": "./temp/outputs",
+    "autoCleanup": true,
+    "cleanupAfter": 3600
+  },
+  "ffmpeg": {
+    "hardwareAccel": "auto",
+    "defaultPreset": "medium",
+    "path": ""
+  },
+  "admin": {
+    "defaultUsername": "admin",
+    "defaultPassword": "admin123"
+  }
+}

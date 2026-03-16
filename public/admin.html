@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理面板 - FFmpeg Studio</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <!-- 管理导航 -->
+    <nav class="navbar admin-nav">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <a href="/dashboard">
+                    <span class="logo">🎬</span>
+                    <span class="brand-text">FFmpeg Studio</span>
+                    <span class="admin-badge">管理面板</span>
+                </a>
+            </div>
+            <div class="nav-links">
+                <a href="/" target="_blank">访问首页</a>
+                <a href="/dashboard">用户工作台</a>
+                <span class="nav-divider"></span>
+                <span id="adminInfo" class="user-info"></span>
+                <button id="changePasswordBtn" class="btn btn-sm btn-outline">修改密码</button>
+                <button id="logoutBtn" class="btn btn-sm btn-outline">退出</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="admin-container">
+        <!-- 侧边栏 -->
+        <aside class="admin-sidebar">
+            <nav class="admin-menu">
+                <a href="#overview" class="admin-menu-item active" data-section="overview">
+                    <span class="menu-icon">📊</span>
+                    <span>系统概览</span>
+                </a>
+                <a href="#users" class="admin-menu-item" data-section="users">
+                    <span class="menu-icon">👥</span>
+                    <span>用户管理</span>
+                    <span id="pendingBadge" class="badge" style="display: none;"></span>
+                </a>
+                <a href="#tasks" class="admin-menu-item" data-section="tasks">
+                    <span class="menu-icon">📋</span>
+                    <span>任务管理</span>
+                </a>
+                <a href="#presets" class="admin-menu-item" data-section="presets">
+                    <span class="menu-icon">📝</span>
+                    <span>预设管理</span>
+                </a>
+                <a href="#config" class="admin-menu-item" data-section="config">
+                    <span class="menu-icon">⚙️</span>
+                    <span>系统配置</span>
+                </a>
+                <a href="#logs" class="admin-menu-item" data-section="logs">
+                    <span class="menu-icon">📜</span>
+                    <span>系统日志</span>
+                </a>
+            </nav>
+            <div class="admin-sidebar-footer">
+                <a href="/dashboard" class="back-to-dashboard">
+                    <span class="menu-icon">🏠</span>
+                    <span>返回工作台</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- 主内容区 -->
+        <main class="admin-main">
+            <!-- 系统概览 -->
+            <section id="overview" class="admin-section active">
+                <h2 class="section-title">系统概览</h2>
+
+                <!-- 统计卡片 -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">👥</div>
+                        <div class="stat-content">
+                            <div id="statTotalUsers" class="stat-value">0</div>
+                            <div class="stat-label">总用户数</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">✅</div>
+                        <div class="stat-content">
+                            <div id="statActiveUsers" class="stat-value">0</div>
+                            <div class="stat-label">活跃用户</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">⏳</div>
+                        <div class="stat-content">
+                            <div id="statPendingUsers" class="stat-value">0</div>
+                            <div class="stat-label">待审核</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">📋</div>
+                        <div class="stat-content">
+                            <div id="statTotalTasks" class="stat-value">0</div>
+                            <div class="stat-label">总任务数</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🔄</div>
+                        <div class="stat-content">
+                            <div id="statProcessingTasks" class="stat-value">0</div>
+                            <div class="stat-label">处理中</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">✅</div>
+                        <div class="stat-content">
+                            <div id="statCompletedTasks" class="stat-value">0</div>
+                            <div class="stat-label">已完成</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 系统资源 -->
+                <div class="card">
+                    <h3 class="card-title">系统资源</h3>
+                    <div id="systemResources" class="resource-info">
+                        <!-- 动态加载 -->
+                    </div>
+                </div>
+
+                <!-- 队列状态 -->
+                <div class="card">
+                    <h3 class="card-title">任务队列</h3>
+                    <div id="queueStatus" class="queue-status">
+                        <!-- 动态加载 -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- 用户管理 -->
+            <section id="users" class="admin-section">
+                <div class="section-header">
+                    <h2 class="section-title">用户管理</h2>
+                    <div class="section-actions">
+                        <button id="createUserBtn" class="btn btn-primary">创建用户</button>
+                        <button id="importUsersBtn" class="btn btn-outline">批量导入</button>
+                    </div>
+                </div>
+
+                <!-- 筛选 -->
+                <div class="filter-bar">
+                    <select id="userStatusFilter" class="form-control">
+                        <option value="">全部状态</option>
+                        <option value="pending">待审核</option>
+                        <option value="approved">已通过</option>
+                        <option value="rejected">已拒绝</option>
+                        <option value="disabled">已禁用</option>
+                    </select>
+                    <input type="text" id="userSearchInput" class="form-control" placeholder="搜索用户名...">
+                </div>
+
+                <!-- 用户列表 -->
+                <div class="card">
+                    <table class="table" id="usersTable">
+                        <thead>
+                            <tr>
+                                <th>用户名</th>
+                                <th>角色</th>
+                                <th>状态</th>
+                                <th>注册时间</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTableBody">
+                            <!-- 动态加载 -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- 任务管理 -->
+            <section id="tasks" class="admin-section">
+                <div class="section-header">
+                    <h2 class="section-title">任务管理</h2>
+                </div>
+
+                <!-- 筛选 -->
+                <div class="filter-bar">
+                    <select id="taskStatusFilter" class="form-control">
+                        <option value="">全部状态</option>
+                        <option value="pending">等待中</option>
+                        <option value="processing">处理中</option>
+                        <option value="completed">已完成</option>
+                        <option value="failed">失败</option>
+                        <option value="cancelled">已取消</option>
+                    </select>
+                    <select id="taskTypeFilter" class="form-control">
+                        <option value="">全部类型</option>
+                    </select>
+                </div>
+
+                <!-- 任务列表 -->
+                <div class="card">
+                    <table class="table" id="tasksTable">
+                        <thead>
+                            <tr>
+                                <th>任务ID</th>
+                                <th>用户</th>
+                                <th>类型</th>
+                                <th>状态</th>
+                                <th>创建时间</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tasksTableBody">
+                            <!-- 动态加载 -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- 预设管理 -->
+            <section id="presets" class="admin-section">
+                <h2 class="section-title">预设管理</h2>
+                <div class="card">
+                    <table class="table" id="presetsTable">
+                        <thead>
+                            <tr>
+                                <th>名称</th>
+                                <th>类型</th>
+                                <th>创建者</th>
+                                <th>公开</th>
+                                <th>使用次数</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="presetsTableBody">
+                            <!-- 动态加载 -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- 系统配置 -->
+            <section id="config" class="admin-section">
+                <h2 class="section-title">系统配置</h2>
+                <div class="card">
+                    <form id="configForm">
+                        <div class="config-section">
+                            <h3>系统设置</h3>
+                            <div class="form-group">
+                                <label for="maxConcurrent">最大并发数</label>
+                                <input type="number" id="maxConcurrent" name="maxConcurrent"
+                                       class="form-control" min="1" max="16">
+                                <small class="form-hint">同时处理的任务数量（1-16）</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="maxFileSize">最大文件大小（MB）</label>
+                                <input type="number" id="maxFileSize" name="maxFileSize"
+                                       class="form-control" min="1">
+                            </div>
+                            <div class="form-group">
+                                <label for="tokenExpire">Token过期时间（小时）</label>
+                                <input type="number" id="tokenExpire" name="tokenExpire"
+                                       class="form-control" min="1">
+                            </div>
+                        </div>
+
+                        <div class="config-section">
+                            <h3>存储设置</h3>
+                            <div class="form-group">
+                                <label>
+                                    <input type="checkbox" id="autoCleanup" name="autoCleanup">
+                                    自动清理临时文件
+                                </label>
+                            </div>
+                            <div class="form-group">
+                                <label for="cleanupAfter">清理间隔（分钟）</label>
+                                <input type="number" id="cleanupAfter" name="cleanupAfter"
+                                       class="form-control" min="60">
+                            </div>
+                        </div>
+
+                        <div class="config-section">
+                            <h3>FFmpeg设置</h3>
+                            <div class="form-group">
+                                <label for="hardwareAccel">硬件加速</label>
+                                <select id="hardwareAccel" name="hardwareAccel" class="form-control">
+                                    <option value="auto">自动检测</option>
+                                    <option value="nvenc">NVIDIA NVENC</option>
+                                    <option value="qsv">Intel QSV</option>
+                                    <option value="vce">AMD VCE</option>
+                                    <option value="videotoolbox">Apple VideoToolbox</option>
+                                    <option value="cpu">仅CPU</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">保存配置</button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+
+            <!-- 系统日志 -->
+            <section id="logs" class="admin-section">
+                <div class="section-header">
+                    <h2 class="section-title">系统日志</h2>
+                    <button id="refreshLogsBtn" class="btn btn-outline">刷新</button>
+                </div>
+                <div class="card">
+                    <div id="logContent" class="log-content">
+                        <!-- 动态加载 -->
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- 用户操作模态框 -->
+    <div id="userModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="userModalTitle">创建用户</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="userForm">
+                    <div class="form-group">
+                        <label for="userUsername">用户名</label>
+                        <input type="text" id="userUsername" name="username" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="userPassword">密码</label>
+                        <input type="password" id="userPassword" name="password" class="form-control">
+                        <small class="form-hint">留空则自动生成</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="userRole">角色</label>
+                        <select id="userRole" name="role" class="form-control">
+                            <option value="user">普通用户</option>
+                            <option value="admin">管理员</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline modal-cancel">取消</button>
+                <button id="userFormSubmit" class="btn btn-primary">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 导入用户模态框 -->
+    <div id="importModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>批量导入用户</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="import-info">
+                    <p>请上传JSON格式的用户文件，格式如下：</p>
+                    <pre>{
+  "users": [
+    { "username": "user1", "password": "password1" },
+    { "username": "user2", "password": "password2" }
+  ]
+}</pre>
+                </div>
+                <div class="form-group">
+                    <input type="file" id="importFile" accept=".json" class="form-control">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline modal-cancel">取消</button>
+                <button id="importSubmit" class="btn btn-primary">导入</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 修改密码模态框 -->
+    <div id="changePasswordModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>修改密码</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>原密码 *</label>
+                    <input type="password" id="oldPassword" class="form-control" placeholder="请输入原密码" required>
+                </div>
+                <div class="form-group">
+                    <label>新密码 *</label>
+                    <input type="password" id="newPassword" class="form-control" placeholder="至少6个字符" required>
+                </div>
+                <div class="form-group">
+                    <label>确认新密码 *</label>
+                    <input type="password" id="confirmPassword" class="form-control" placeholder="请再次输入新密码" required>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline modal-cancel">取消</button>
+                <button id="submitChangePasswordBtn" class="btn btn-primary">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/websocket.js"></script>
+    <script src="/js/app.js"></script>
+    <script src="/js/admin.js"></script>
+
+    <footer class="admin-footer">
+        <div class="auth-copyright">
+            <p>© 2026 <a href="https://github.com/wangshengithub/ffmpeg-studio" target="_blank">FFmpeg Studio</a></p>
+            <p>Powered by <a href="https://github.com/wangshengithub/ffmpeg-oneclick" target="_blank">ffmpeg-oneclick</a></p>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,1278 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>预设市场 - FFmpeg Studio</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .market-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: var(--spacing-lg);
+        }
+
+        .market-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .market-title {
+            font-size: var(--font-size-2xl);
+            font-weight: 700;
+        }
+
+        .presets-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: var(--spacing-lg);
+        }
+
+        .preset-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-lg);
+            padding: var(--spacing-lg);
+            transition: var(--transition);
+        }
+
+        .preset-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .preset-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .preset-name {
+            font-size: var(--font-size-lg);
+            font-weight: 600;
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .preset-type {
+            font-size: var(--font-size-sm);
+            color: var(--text-muted);
+        }
+
+        .preset-badge {
+            font-size: var(--font-size-sm);
+            padding: 2px 8px;
+            border-radius: 12px;
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .preset-badge.builtin {
+            background: var(--success-color);
+        }
+
+        .preset-description {
+            color: var(--text-secondary);
+            font-size: var(--font-size-sm);
+            margin-bottom: var(--spacing-md);
+            line-height: 1.5;
+        }
+
+        .preset-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: var(--spacing-md);
+            border-top: 1px solid var(--border-color);
+            font-size: var(--font-size-sm);
+            color: var(--text-muted);
+        }
+
+        .preset-stats {
+            display: flex;
+            gap: var(--spacing-md);
+        }
+
+        .preset-stat {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .preset-actions {
+            display: flex;
+            gap: var(--spacing-sm);
+        }
+
+        .empty-state, .loading-state {
+            text-align: center;
+            padding: calc(var(--spacing-xl) * 2);
+            color: var(--text-muted);
+        }
+
+        .filter-group {
+            display: flex;
+            gap: var(--spacing-sm);
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: var(--spacing-sm) var(--spacing-md);
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .filter-btn:hover {
+            background: var(--border-color);
+        }
+
+        .filter-btn.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .market-filters {
+            display: flex;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-xl);
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .search-box {
+            display: flex;
+            gap: var(--spacing-sm);
+            flex: 1;
+            max-width: 400px;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+
+        .sort-select {
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+
+        /* 预设文件上传区域 */
+        .preset-files-section {
+            margin-top: var(--spacing-lg);
+            padding: var(--spacing-md);
+            background: var(--bg-tertiary);
+            border-radius: var(--border-radius);
+        }
+
+        .preset-files-section h4 {
+            margin-bottom: var(--spacing-md);
+            color: var(--primary-color);
+        }
+
+        .preset-file-upload {
+            padding: var(--spacing-md);
+            background: var(--bg-secondary);
+            border: 2px dashed var(--border-color);
+            border-radius: var(--border-radius);
+            margin-bottom: var(--spacing-sm);
+            transition: var(--transition);
+        }
+
+        .preset-file-upload:hover {
+            border-color: var(--primary-color);
+        }
+
+        .preset-file-upload label {
+            font-weight: 500;
+            margin-bottom: var(--spacing-xs);
+            display: block;
+            color: var(--text-primary);
+        }
+
+        .file-hint {
+            font-size: var(--font-size-sm);
+            color: var(--text-muted);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .preset-file-input {
+            width: 100%;
+            padding: var(--spacing-sm);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            cursor: pointer;
+        }
+
+        .uploaded-file-info {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: var(--spacing-sm) var(--spacing-md);
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid var(--success-color);
+            border-radius: var(--border-radius);
+        }
+
+        .uploaded-file-info span {
+            color: var(--success-color);
+        }
+
+        .task-description {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+            padding: var(--spacing-md);
+            border-radius: var(--border-radius);
+            margin-bottom: var(--spacing-md);
+            border-left: 3px solid var(--primary-color);
+        }
+
+        .task-description p {
+            margin: var(--spacing-xs) 0;
+            color: var(--text-secondary);
+        }
+
+        .task-description strong {
+            color: var(--primary-color);
+        }
+
+        .task-tip {
+            font-size: var(--font-size-sm);
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        /* 通知样式 */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: slideIn 0.3s ease;
+            color: white;
+        }
+
+        .notification-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            opacity: 0.7;
+        }
+
+        .notification-close:hover {
+            opacity: 1;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+
+        /* 确认框样式 */
+        .confirm-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10001;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .confirm-dialog {
+            background: var(--bg-secondary);
+            padding: var(--spacing-xl);
+            border-radius: var(--border-radius-lg);
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+
+        .confirm-dialog h3 {
+            margin-bottom: var(--spacing-md);
+            color: var(--text-primary);
+        }
+
+        .confirm-dialog p {
+            margin-bottom: var(--spacing-lg);
+            color: var(--text-secondary);
+        }
+
+        .confirm-buttons {
+            display: flex;
+            gap: var(--spacing-md);
+            justify-content: flex-end;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <a href="/dashboard">
+                    <span class="logo">🎬</span>
+                    <span class="brand-text">FFmpeg Studio</span>
+                </a>
+            </div>
+            <div class="nav-links">
+                <a href="/dashboard">工作台</a>
+                <a href="/presets" class="active">预设市场</a>
+                <a href="/admin" id="adminLink" style="display: none;">管理面板</a>
+                <span class="nav-divider"></span>
+                <span id="userInfo" class="user-info"></span>
+                <button id="logoutBtn" class="btn btn-sm btn-outline">退出</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主内容区 -->
+    <div class="market-container">
+        <div class="market-header">
+            <h1 class="market-title">预设市场</h1>
+            <button id="createPresetBtn" class="btn btn-primary">创建预设</button>
+        </div>
+
+        <!-- 筛选 -->
+        <div class="market-filters">
+            <div class="search-box">
+                <input type="text" id="searchInput" class="search-input" placeholder="搜索预设名称或描述...">
+                <button id="searchBtn" class="btn btn-outline">搜索</button>
+            </div>
+
+            <div class="filter-group" id="typeFilters">
+                <button class="filter-btn active" data-type="">全部</button>
+                <button class="filter-btn" data-type="convert">转换</button>
+                <button class="filter-btn" data-type="compress">压缩</button>
+                <button class="filter-btn" data-type="gif">GIF</button>
+                <button class="filter-btn" data-type="watermark">水印</button>
+                <button class="filter-btn" data-type="audio">音频</button>
+                <button class="filter-btn" data-type="streaming">流媒体</button>
+            </div>
+
+            <select id="sortSelect" class="sort-select">
+                <option value="newest">最新发布</option>
+                <option value="popular">最多使用</option>
+            </select>
+        </div>
+
+        <!-- 预设列表 -->
+        <div id="presetsGrid" class="presets-grid">
+            <div class="loading-state"><p>加载中...</p></div>
+        </div>
+    </div>
+
+    <!-- 创建预设模态框 -->
+    <div id="createPresetModal" class="modal">
+        <div class="modal-content modal-lg">
+            <div class="modal-header">
+                <h3>创建预设</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="createPresetForm">
+                    <div class="form-group">
+                        <label for="presetName">预设名称 *</label>
+                        <input type="text" id="presetName" name="name" class="form-control" required
+                               placeholder="如: 高质量MP4转换">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="presetType">任务类型 *</label>
+                        <select id="presetType" name="type" class="form-control" required>
+                            <option value="">请选择类型</option>
+                            <option value="convert">视频转换</option>
+                            <option value="compress">视频压缩</option>
+                            <option value="trim">视频裁剪</option>
+                            <option value="concat">视频拼接</option>
+                            <option value="gif">GIF制作</option>
+                            <option value="audioExtract">音频提取</option>
+                            <option value="audioMix">音频混合</option>
+                            <option value="watermark">图片水印</option>
+                            <option value="textWatermark">文字水印</option>
+                            <option value="screenshot">截图提取</option>
+                            <option value="hls">HLS流</option>
+                            <option value="dash">DASH流</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="presetDescription">描述</label>
+                        <textarea id="presetDescription" name="description" class="form-control" rows="3"
+                                  placeholder="简要描述此预设的用途和特点"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="presetPublic" name="isPublic">
+                            公开到预设市场（其他用户可以使用）
+                        </label>
+                    </div>
+
+                    <div class="form-group">
+                        <label>配置参数</label>
+                        <div id="presetConfigPanel" class="config-panel">
+                            <p class="form-hint">请先选择任务类型</p>
+                        </div>
+                    </div>
+
+                    <div class="form-group" id="presetFilesGroup" style="display: none;">
+                        <label>预设文件（可选）</label>
+                        <div id="presetFilesPanel" class="preset-files-section">
+                            <!-- 动态生成 -->
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline modal-cancel">取消</button>
+                <button id="submitPresetBtn" class="btn btn-primary">创建</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 预设详情模态框 -->
+    <div id="presetDetailModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="detailPresetName">预设详情</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body" id="presetDetailBody">
+                <!-- 动态加载 -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline modal-cancel">关闭</button>
+                <button id="usePresetBtn" class="btn btn-primary">使用此预设</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/websocket.js"></script>
+    <script>
+        // 状态管理
+        const MarketState = {
+            presets: [],
+            filters: { type: '', search: '', sort: 'newest' },
+            selectedPreset: null,
+            uploadedPresetFiles: {}
+        };
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', async () => {
+            const token = localStorage.getItem('token');
+            const userStr = localStorage.getItem('user');
+
+            if (!token || !userStr) {
+                window.location.href = '/login';
+                return;
+            }
+
+            const user = JSON.parse(userStr);
+            document.getElementById('userInfo').textContent = user.username;
+
+            if (user.role === 'admin') {
+                document.getElementById('adminLink').style.display = 'inline';
+            }
+
+            bindEvents();
+            await loadPresets();
+        });
+
+        // 绑定事件
+        function bindEvents() {
+            document.getElementById('logoutBtn').addEventListener('click', async () => {
+                try { await API.auth.logout(); } catch (e) {}
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                window.location.href = '/login';
+            });
+
+            document.querySelectorAll('#typeFilters .filter-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('#typeFilters .filter-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    MarketState.filters.type = btn.dataset.type;
+                    loadPresets();
+                });
+            });
+
+            document.getElementById('searchBtn').addEventListener('click', () => {
+                MarketState.filters.search = document.getElementById('searchInput').value;
+                loadPresets();
+            });
+
+            document.getElementById('searchInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    MarketState.filters.search = e.target.value;
+                    loadPresets();
+                }
+            });
+
+            document.getElementById('sortSelect').addEventListener('change', (e) => {
+                MarketState.filters.sort = e.target.value;
+                loadPresets();
+            });
+
+            document.getElementById('createPresetBtn').addEventListener('click', () => {
+                openModal('createPresetModal');
+            });
+
+            document.getElementById('presetType').addEventListener('change', (e) => {
+                updatePresetConfigPanel(e.target.value);
+            });
+
+            document.getElementById('submitPresetBtn').addEventListener('click', async () => {
+                await createPreset();
+            });
+
+            document.querySelectorAll('.modal-close, .modal-cancel').forEach(btn => {
+                btn.addEventListener('click', () => closeAllModals());
+            });
+
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) closeAllModals();
+                });
+            });
+
+            // 预设详情弹窗中的"使用此预设"按钮
+            document.getElementById('usePresetBtn').addEventListener('click', () => {
+                if (MarketState.selectedPreset) {
+                    usePreset(MarketState.selectedPreset.id);
+                }
+            });
+        }
+
+        // 加载预设
+        async function loadPresets() {
+            const grid = document.getElementById('presetsGrid');
+            grid.innerHTML = '<div class="loading-state"><p>加载中...</p></div>';
+
+            try {
+                const result = await API.presets.market(MarketState.filters.type, MarketState.filters.sort);
+                if (result.success) {
+                    let presets = result.presets;
+                    if (MarketState.filters.search) {
+                        const search = MarketState.filters.search.toLowerCase();
+                        presets = presets.filter(p =>
+                            p.name.toLowerCase().includes(search) ||
+                            (p.description && p.description.toLowerCase().includes(search))
+                        );
+                    }
+                    MarketState.presets = presets;
+                    renderPresets();
+                }
+            } catch (error) {
+                grid.innerHTML = '<div class="empty-state"><p>加载失败，请稍后重试</p></div>';
+            }
+        }
+
+        // 渲染预设
+        function renderPresets() {
+            const grid = document.getElementById('presetsGrid');
+            if (MarketState.presets.length === 0) {
+                grid.innerHTML = '<div class="empty-state"><p>暂无预设</p></div>';
+                return;
+            }
+
+            grid.innerHTML = MarketState.presets.map(preset => `
+                <div class="preset-card" data-preset-id="${preset.id}">
+                    <div class="preset-card-header">
+                        <div>
+                            <div class="preset-name">${escapeHtml(preset.name)}</div>
+                            <div class="preset-type">${getTaskTypeName(preset.type)}</div>
+                        </div>
+                        <span class="preset-badge ${preset.isBuiltin ? 'builtin' : ''}">
+                            ${preset.isBuiltin ? '官方' : '社区'}
+                        </span>
+                    </div>
+                    <div class="preset-description">${escapeHtml(preset.description || '暂无描述')}</div>
+                    <div class="preset-meta">
+                        <div class="preset-stats">
+                            <span class="preset-stat">⬇️ ${preset.usageCount || 0}</span>
+                        </div>
+                        <div class="preset-actions">
+                            <button class="btn btn-sm btn-outline view-preset-btn" data-preset-id="${preset.id}">详情</button>
+                            <button class="btn btn-sm btn-primary use-preset-btn" data-preset-id="${preset.id}">使用</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            grid.querySelectorAll('.view-preset-btn').forEach(btn => {
+                btn.addEventListener('click', () => viewPreset(btn.dataset.presetId));
+            });
+
+            grid.querySelectorAll('.use-preset-btn').forEach(btn => {
+                btn.addEventListener('click', () => usePreset(btn.dataset.presetId));
+            });
+        }
+
+        // 查看预设详情
+        function viewPreset(presetId) {
+            const preset = MarketState.presets.find(p => p.id === presetId);
+            if (!preset) return;
+
+            MarketState.selectedPreset = preset;
+
+            let filesHtml = '';
+            if (preset.files && Object.keys(preset.files).length > 0) {
+                filesHtml = '<div class="detail-section"><h4>预设文件</h4><ul>';
+                for (const [key, file] of Object.entries(preset.files)) {
+                    filesHtml += `<li><strong>${getFileLabel(key)}:</strong> ${file.name}</li>`;
+                }
+                filesHtml += '</ul></div>';
+            }
+
+            document.getElementById('detailPresetName').textContent = preset.name;
+            document.getElementById('presetDetailBody').innerHTML = `
+                <div class="detail-section">
+                    <p><strong>类型:</strong> ${getTaskTypeName(preset.type)}</p>
+                    <p><strong>描述:</strong> ${escapeHtml(preset.description || '暂无描述')}</p>
+                    <p><strong>使用次数:</strong> ${preset.usageCount || 0}</p>
+                </div>
+                ${filesHtml}
+                <div class="detail-section">
+                    <h4>配置参数</h4>
+                    <pre style="background: var(--bg-tertiary); padding: var(--spacing-md); border-radius: var(--border-radius); overflow-x: auto;">${JSON.stringify(preset.config || {}, null, 2)}</pre>
+                </div>
+            `;
+
+            openModal('presetDetailModal');
+        }
+
+        function usePreset(presetId) {
+            window.location.href = `/dashboard?preset=${presetId}`;
+        }
+
+        // 创建预设
+        async function createPreset() {
+            const form = document.getElementById('createPresetForm');
+            const formData = new FormData(form);
+
+            const presetData = {
+                name: formData.get('name'),
+                type: formData.get('type'),
+                description: formData.get('description'),
+                isPublic: document.getElementById('presetPublic').checked,
+                config: collectPresetConfig(),
+                files: MarketState.uploadedPresetFiles
+            };
+
+            if (!presetData.name || !presetData.type) {
+                showNotification('请填写必填项', 'error');
+                return;
+            }
+
+            try {
+                const result = await API.presets.create(presetData);
+                if (result.success) {
+                    showNotification('预设创建成功！', 'success');
+                    closeAllModals();
+                    form.reset();
+                    MarketState.uploadedPresetFiles = {};
+                    document.getElementById('presetConfigPanel').innerHTML = '<p class="form-hint">请先选择任务类型</p>';
+                    document.getElementById('presetFilesGroup').style.display = 'none';
+                    await loadPresets();
+                } else {
+                    showNotification(result.message || '创建失败', 'error');
+                }
+            } catch (error) {
+                showNotification('创建失败: ' + error.message, 'error');
+            }
+        }
+
+        // 更新预设配置面板（与工作台一致）
+        function updatePresetConfigPanel(type) {
+            const panel = document.getElementById('presetConfigPanel');
+            const filesGroup = document.getElementById('presetFilesGroup');
+            const filesPanel = document.getElementById('presetFilesPanel');
+
+            // 所有任务类型的完整配置（与工作台一致）
+            const configs = {
+                convert: `
+                    <div class="task-description">
+                        <p>📋 <strong>视频转换</strong>：将视频转换为不同格式，支持调整分辨率和码率。</p>
+                        <p class="task-tip">💡 建议使用 MP4 格式以获得最佳兼容性。</p>
+                    </div>
+                    <div class="form-group">
+                        <label>输出格式</label>
+                        <select name="format" class="form-control">
+                            <option value="mp4">MP4</option>
+                            <option value="webm">WebM</option>
+                            <option value="avi">AVI</option>
+                            <option value="mkv">MKV</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>分辨率</label>
+                        <select name="resolution" class="form-control">
+                            <option value="">保持原始</option>
+                            <option value="480p">480p</option>
+                            <option value="720p">720p</option>
+                            <option value="1080p">1080p</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>视频码率</label>
+                        <input type="text" name="videoBitrate" class="form-control" placeholder="如: 2M, 4M">
+                    </div>
+                    <div class="form-group">
+                        <label>音频码率</label>
+                        <input type="text" name="audioBitrate" class="form-control" value="128k" placeholder="如: 128k, 192k">
+                    </div>
+                    <div class="form-group">
+                        <label>帧率 (FPS)</label>
+                        <input type="number" name="fps" class="form-control" placeholder="如: 30, 60">
+                    </div>
+                `,
+                compress: `
+                    <div class="task-description">
+                        <p>📋 <strong>视频压缩</strong>：减小视频文件大小，同时尽量保持画质。</p>
+                        <p class="task-tip">💡 高压缩会显著减小文件，但可能损失画质。建议选择"平衡"模式。</p>
+                    </div>
+                    <div class="form-group">
+                        <label>压缩质量</label>
+                        <select name="quality" class="form-control">
+                            <option value="high">高压缩（文件更小）</option>
+                            <option value="medium" selected>平衡</option>
+                            <option value="low">高质量（文件较大）</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>CRF值 (0-51，越小质量越高)</label>
+                        <input type="number" name="crf" class="form-control" min="0" max="51" value="23" placeholder="默认23">
+                    </div>
+                    <div class="form-group">
+                        <label>分辨率</label>
+                        <select name="resolution" class="form-control">
+                            <option value="">保持原始</option>
+                            <option value="480p">480p</option>
+                            <option value="720p">720p</option>
+                            <option value="1080p">1080p</option>
+                        </select>
+                    </div>
+                `,
+                trim: `
+                    <div class="task-description">
+                        <p>📋 <strong>视频裁剪</strong>：截取视频的指定片段。</p>
+                        <p class="task-tip">💡 可以精确到毫秒级裁剪。启用"快速裁剪"可以不重新编码。</p>
+                    </div>
+                    <div class="form-group">
+                        <label>开始时间</label>
+                        <input type="text" name="startTime" class="form-control" placeholder="格式: 00:00:10 或 10 (秒)">
+                    </div>
+                    <div class="form-group">
+                        <label>结束时间</label>
+                        <input type="text" name="endTime" class="form-control" placeholder="格式: 00:00:30 或 30 (秒)">
+                    </div>
+                    <div class="form-group">
+                        <label>持续时长</label>
+                        <input type="text" name="duration" class="form-control" placeholder="格式: 00:00:20 或 20 (秒)">
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" name="fastCopy"> 快速裁剪（不重新编码）
+                        </label>
+                    </div>
+                `,
+                concat: `
+                    <div class="task-description">
+                        <p>📋 <strong>视频拼接</strong>：将多个视频按顺序合并为一个。</p>
+                        <p class="task-tip">💡 建议所有视频使用相同的分辨率和编码格式。上传时请按拼接顺序选择文件。</p>
+                    </div>
+                    <div class="form-group">
+                        <label>输出格式</label>
+                        <select name="format" class="form-control">
+                            <option value="mp4">MP4</option>
+                            <option value="mkv">MKV</option>
+                        </select>
+                    </div>
+                `,
+                gif: `
+                    <div class="task-description">
+                        <p>📋 <strong>GIF制作</strong>：从视频中提取片段生成动图。</p>
+                        <p class="task-tip">💡 GIF文件较大，建议限制时长和尺寸。帧率越高越流畅，但文件也越大。</p>
+                    </div>
+                    <div class="form-group">
+                        <label>开始时间</label>
+                        <input type="text" name="startTime" class="form-control" value="0" placeholder="格式: 00:00:10 或 10 (秒)">
+                    </div>
+                    <div class="form-group">
+                        <label>持续时长 (秒)</label>
+                        <input type="number" name="duration" class="form-control" value="5" min="1" max="30">
+                    </div>
+                    <div class="form-group">
+                        <label>帧率 (FPS)</label>
+                        <select name="fps" class="form-control">
+                            <option value="10">10 FPS</option>
+                            <option value="15" selected>15 FPS</option>
+                            <option value="20">20 FPS</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>宽度 (像素)</label>
+                        <input type="number" name="width" class="form-control" value="480" min="100" max="1280">
+                    </div>
+                `,
+                audioExtract: `
+                    <div class="task-description">
+                        <p>📋 <strong>音频提取</strong>：从视频中提取音轨。</p>
+                        <p class="task-tip">💡 支持多种音频格式。MP3兼容性最好，AAC适合苹果设备。</p>
+                    </div>
+                    <div class="form-group">
+                        <label>输出格式</label>
+                        <select name="format" class="form-control">
+                            <option value="mp3">MP3</option>
+                            <option value="aac">AAC</option>
+                            <option value="wav">WAV (无损)</option>
+                            <option value="flac">FLAC (无损压缩)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>音频码率</label>
+                        <select name="bitrate" class="form-control">
+                            <option value="128k">128 kbps</option>
+                            <option value="192k" selected>192 kbps</option>
+                            <option value="256k">256 kbps</option>
+                            <option value="320k">320 kbps</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>采样率</label>
+                        <select name="sampleRate" class="form-control">
+                            <option value="44100">44.1 kHz</option>
+                            <option value="48000">48 kHz</option>
+                        </select>
+                    </div>
+                `,
+                audioMix: `
+                    <div class="task-description">
+                        <p>📋 <strong>音频混合</strong>：将背景音频混入视频中。</p>
+                        <p class="task-tip">💡 可分别调节原声和背景音量。背景音频会循环播放直到视频结束。</p>
+                    </div>
+                    <div class="form-group">
+                        <label>原声音量</label>
+                        <input type="range" name="originalVolume" class="form-control" min="0" max="2" step="0.1" value="1">
+                        <span class="form-hint">1.0 = 原始音量</span>
+                    </div>
+                    <div class="form-group">
+                        <label>背景音量</label>
+                        <input type="range" name="backgroundVolume" class="form-control" min="0" max="2" step="0.1" value="0.5">
+                        <span class="form-hint">0.5 = 50%音量</span>
+                    </div>
+                    <div class="form-group">
+                        <label>背景音频循环</label>
+                        <select name="loop" class="form-control">
+                            <option value="0">不循环</option>
+                            <option value="-1" selected>循环至视频结束</option>
+                        </select>
+                    </div>
+                `,
+                watermark: `
+                    <div class="task-description">
+                        <p>📋 <strong>图片水印</strong>：在视频上添加图片水印。</p>
+                        <p class="task-tip">💡 透明度建议0.5-0.8。缩放比例根据水印尺寸调整。</p>
+                    </div>
+                    <div class="form-group">
+                        <label>水印位置</label>
+                        <select name="position" class="form-control">
+                            <option value="top-left">左上角</option>
+                            <option value="top-right">右上角</option>
+                            <option value="bottom-left">左下角</option>
+                            <option value="bottom-right" selected>右下角</option>
+                            <option value="center">居中</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>透明度</label>
+                        <input type="range" name="opacity" class="form-control" min="0" max="1" step="0.1" value="0.8">
+                    </div>
+                    <div class="form-group">
+                        <label>缩放比例</label>
+                        <input type="number" name="scale" class="form-control" min="0.01" max="1" step="0.05" value="0.2">
+                        <span class="form-hint">0.2 = 水印占视频宽度的20%</span>
+                    </div>
+                `,
+                textWatermark: `
+                    <div class="task-description">
+                        <p>📋 <strong>文字水印</strong>：在视频上添加文字水印。</p>
+                        <p class="task-tip">💡 建议使用描边和阴影提高可读性。</p>
+                    </div>
+                    <div class="form-group">
+                        <label>水印文字</label>
+                        <input type="text" name="text" class="form-control" value="FFmpeg Studio" placeholder="输入水印文字">
+                    </div>
+                    <div class="form-group">
+                        <label>字体大小</label>
+                        <input type="number" name="fontSize" class="form-control" value="24" min="8" max="120">
+                    </div>
+                    <div class="form-group">
+                        <label>字体颜色</label>
+                        <input type="color" name="fontColor" class="form-control" value="#ffffff">
+                    </div>
+                    <div class="form-group">
+                        <label>水印位置</label>
+                        <select name="position" class="form-control">
+                            <option value="top-left">左上角</option>
+                            <option value="top-right">右上角</option>
+                            <option value="bottom-left">左下角</option>
+                            <option value="bottom-right" selected>右下角</option>
+                            <option value="center">居中</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>透明度</label>
+                        <input type="range" name="opacity" class="form-control" min="0" max="1" step="0.1" value="0.8">
+                        <span class="form-hint">0 = 完全透明，1 = 完全不透明</span>
+                    </div>
+                    <div class="form-group">
+                        <label>描边颜色</label>
+                        <input type="color" name="borderColor" class="form-control" value="#000000">
+                        <span class="form-hint">描边可以提高文字对比度</span>
+                    </div>
+                    <div class="form-group">
+                        <label>描边宽度</label>
+                        <input type="number" name="borderWidth" class="form-control" value="1" min="0" max="10" step="0.5">
+                        <span class="form-hint">0 = 无描边</span>
+                    </div>
+                    <div class="form-group">
+                        <label>阴影颜色</label>
+                        <input type="color" name="shadowColor" class="form-control" value="#000000">
+                        <span class="form-hint">阴影可以增强立体感</span>
+                    </div>
+                    <div class="form-group">
+                        <label>阴影偏移</label>
+                        <input type="number" name="shadowOffset" class="form-control" value="1" min="0" max="10" step="0.5">
+                        <span class="form-hint">0 = 无阴影</span>
+                    </div>
+                `,
+                screenshot: `
+                    <div class="task-description">
+                        <p>📋 <strong>截图提取</strong>：从视频中提取截图。</p>
+                        <p class="task-tip">💡 可以提取单张或多张截图。多张截图会均匀分布在整个视频中。</p>
+                    </div>
+                    <div class="form-group">
+                        <label>截图时间点 (秒)</label>
+                        <input type="number" name="time" class="form-control" value="1" min="0" step="0.1">
+                        <span class="form-hint">提取单张截图的时间点</span>
+                    </div>
+                    <div class="form-group">
+                        <label>截图数量</label>
+                        <input type="number" name="count" class="form-control" value="1" min="1" max="100">
+                        <span class="form-hint">大于1时均匀分布在视频中</span>
+                    </div>
+                    <div class="form-group">
+                        <label>输出格式</label>
+                        <select name="format" class="form-control">
+                            <option value="png">PNG</option>
+                            <option value="jpg">JPG</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>宽度 (像素)</label>
+                        <input type="number" name="width" class="form-control" placeholder="保持原始">
+                    </div>
+                `,
+                hls: `
+                    <div class="task-description">
+                        <p>📋 <strong>HLS流</strong>：将视频转换为HLS（HTTP Live Streaming）格式。</p>
+                        <p class="task-tip">💡 HLS是Apple开发的流媒体协议，广泛用于在线视频。输出为m3u8播放列表和ts分片文件。</p>
+                    </div>
+                    <div class="form-group">
+                        <label>分片时长（秒）</label>
+                        <input type="number" name="segmentDuration" class="form-control" value="10" min="1" max="30">
+                    </div>
+                    <div class="form-group">
+                        <label>视频码率</label>
+                        <input type="text" name="videoBitrate" class="form-control" value="2M" placeholder="如: 2M">
+                    </div>
+                `,
+                dash: `
+                    <div class="task-description">
+                        <p>📋 <strong>DASH流</strong>：将视频转换为DASH（Dynamic Adaptive Streaming over HTTP）格式。</p>
+                        <p class="task-tip">💡 DASH是国际标准的流媒体协议，支持自适应码率。输出为mpd播放列表和m4s分片文件。</p>
+                    </div>
+                    <div class="form-group">
+                        <label>分片时长（秒）</label>
+                        <input type="number" name="segmentDuration" class="form-control" value="10" min="1" max="30">
+                    </div>
+                    <div class="form-group">
+                        <label>视频码率</label>
+                        <input type="text" name="videoBitrate" class="form-control" value="2M" placeholder="如: 2M">
+                    </div>
+                `
+            };
+
+            // 预设文件配置（仅包含需要存储特定文件的预设类型）
+            const fileConfigs = {
+                watermark: {
+                    watermarkImage: { label: '水印图片', accept: 'image/*', description: '设置默认水印图片（PNG透明背景效果更好）' }
+                },
+                audioMix: {
+                    backgroundAudio: { label: '背景音频', accept: 'audio/*', description: '设置默认背景音频（MP3、AAC、WAV等）' }
+                }
+            };
+
+            panel.innerHTML = configs[type] || '<p class="form-hint">该类型暂无可配置参数</p>';
+
+            // 显示预设文件上传区域
+            if (fileConfigs[type]) {
+                filesGroup.style.display = 'block';
+                const fileConfig = fileConfigs[type];
+
+                let filesHtml = '<h4>📎 预设文件</h4>';
+                for (const [key, config] of Object.entries(fileConfig)) {
+                    const uploadedFile = MarketState.uploadedPresetFiles[key];
+                    filesHtml += `
+                        <div class="preset-file-upload">
+                            <label>${config.label}</label>
+                            <p class="file-hint">${config.description}</p>
+                            ${uploadedFile ? `
+                                <div class="uploaded-file-info">
+                                    <span>✅ ${uploadedFile.name}</span>
+                                    <button type="button" class="btn btn-sm btn-danger remove-preset-file" data-key="${key}">移除</button>
+                                </div>
+                            ` : `
+                                <input type="file" class="preset-file-input" data-key="${key}" accept="${config.accept}" ${config.multiple ? 'multiple' : ''}>
+                            `}
+                        </div>
+                    `;
+                }
+                filesPanel.innerHTML = filesHtml;
+
+                // 绑定文件上传事件
+                filesPanel.querySelectorAll('.preset-file-input').forEach(input => {
+                    input.addEventListener('change', async (e) => {
+                        const key = e.target.dataset.key;
+                        const files = e.target.files;
+                        if (files.length > 0) {
+                            if (files.length === 1) {
+                                await uploadPresetFile(key, files[0]);
+                            } else {
+                                // 多文件
+                                for (const file of files) {
+                                    await uploadPresetFile(key + '_' + Date.now(), file);
+                                }
+                            }
+                        }
+                    });
+                });
+
+                // 绑定移除文件事件
+                filesPanel.querySelectorAll('.remove-preset-file').forEach(btn => {
+                    btn.addEventListener('click', async (e) => {
+                        const key = e.target.dataset.key;
+                        const file = MarketState.uploadedPresetFiles[key];
+
+                        // 调用后端API删除文件
+                        if (file && file.path) {
+                            try {
+                                await API.upload.delete(file.path);
+                                console.log('预设文件已从服务器删除:', file.name);
+                            } catch (error) {
+                                console.error('删除预设文件失败:', error);
+                                // 即使删除失败，也从列表中移除
+                            }
+                        }
+
+                        delete MarketState.uploadedPresetFiles[key];
+                        updatePresetConfigPanel(type);
+                    });
+                });
+            } else {
+                filesGroup.style.display = 'none';
+                filesPanel.innerHTML = '';
+            }
+        }
+
+        // 上传预设文件
+        async function uploadPresetFile(key, file) {
+            try {
+                showNotification('正在上传: ' + file.name, 'info');
+                const result = await API.upload.single(file);
+
+                if (result.success) {
+                    MarketState.uploadedPresetFiles[key] = result.file;
+                    showNotification(`${file.name} 上传成功`, 'success');
+                    updatePresetConfigPanel(document.getElementById('presetType').value);
+                } else {
+                    showNotification('上传失败: ' + result.message, 'error');
+                }
+            } catch (error) {
+                showNotification('上传失败: ' + error.message, 'error');
+            }
+        }
+
+        // 收集预设配置
+        function collectPresetConfig() {
+            const config = {};
+            const panel = document.getElementById('presetConfigPanel');
+
+            panel.querySelectorAll('input, select').forEach(el => {
+                if (el.name) {
+                    if (el.type === 'checkbox') {
+                        config[el.name] = el.checked;
+                    } else if (el.type === 'range' || el.type === 'number') {
+                        config[el.name] = parseFloat(el.value);
+                    } else if (el.value) {
+                        config[el.name] = el.value;
+                    }
+                }
+            });
+
+            return config;
+        }
+
+        // 模态框管理
+        function openModal(modalId) {
+            document.getElementById(modalId)?.classList.add('active');
+        }
+
+        function closeAllModals() {
+            document.querySelectorAll('.modal.active').forEach(modal => {
+                modal.classList.remove('active');
+            });
+        }
+
+        // 自定义通知
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `notification`;
+            notification.style.background = type === 'success' ? '#22c55e' : type === 'error' ? '#ef4444' : type === 'warning' ? '#f59e0b' : '#3b82f6';
+            notification.innerHTML = `
+                <span>${message}</span>
+                <button class="notification-close">&times;</button>
+            `;
+
+            document.body.appendChild(notification);
+
+            notification.querySelector('.notification-close').addEventListener('click', () => {
+                notification.remove();
+            });
+
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.style.animation = 'slideOut 0.3s ease';
+                    setTimeout(() => notification.remove(), 300);
+                }
+            }, 5000);
+        }
+
+        // 自定义确认框
+        function showConfirm(message, title = '确认') {
+            return new Promise((resolve) => {
+                const overlay = document.createElement('div');
+                overlay.className = 'confirm-overlay';
+                overlay.innerHTML = `
+                    <div class="confirm-dialog">
+                        <h3>${title}</h3>
+                        <p>${message}</p>
+                        <div class="confirm-buttons">
+                            <button class="btn btn-outline confirm-cancel">取消</button>
+                            <button class="btn btn-primary confirm-ok">确定</button>
+                        </div>
+                    </div>
+                `;
+
+                document.body.appendChild(overlay);
+
+                const close = (result) => {
+                    overlay.style.animation = 'fadeOut 0.2s ease';
+                    setTimeout(() => overlay.remove(), 200);
+                    resolve(result);
+                };
+
+                overlay.querySelector('.confirm-cancel').addEventListener('click', () => close(false));
+                overlay.querySelector('.confirm-ok').addEventListener('click', () => close(true));
+                overlay.addEventListener('click', (e) => {
+                    if (e.target === overlay) close(false);
+                });
+            });
+        }
+
+        // 辅助函数
+        function getTaskTypeName(type) {
+            const names = {
+                convert: '视频转换',
+                compress: '视频压缩',
+                trim: '视频裁剪',
+                concat: '视频拼接',
+                gif: 'GIF制作',
+                audioExtract: '音频提取',
+                audioMix: '音频混合',
+                watermark: '图片水印',
+                textWatermark: '文字水印',
+                screenshot: '截图提取',
+                hls: 'HLS流',
+                dash: 'DASH流'
+            };
+            return names[type] || type;
+        }
+
+        function getFileLabel(key) {
+            const labels = {
+                watermarkImage: '水印图片',
+                backgroundAudio: '背景音频',
+                videoFiles: '视频文件'
+            };
+            return labels[key] || key;
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    </script>
+
+    <footer class="market-footer">
+        <div class="auth-copyright">
+            <p>© 2026 <a href="https://github.com/wangshengithub/ffmpeg-studio" target="_blank">FFmpeg Studio</a></p>
+            <p>Powered by <a href="https://github.com/wangshengithub/ffmpeg-oneclick" target="_blank">ffmpeg-oneclick</a></p>
+        </div>
+    </footer>
+</body>
+</html>

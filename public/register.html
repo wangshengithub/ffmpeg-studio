@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>注册 - FFmpeg Studio</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="auth-page">
+        <div class="auth-container">
+            <div class="auth-header">
+                <a href="/" class="auth-brand">
+                    <span class="logo">🎬</span>
+                    <span class="brand-text">FFmpeg Studio</span>
+                </a>
+                <h1>注册</h1>
+                <p class="auth-subtitle">创建您的账户</p>
+            </div>
+
+            <form id="registerForm" class="auth-form">
+                <div class="form-group">
+                    <label for="username">用户名</label>
+                    <input type="text" id="username" name="username" class="form-control" required
+                           placeholder="3-20个字符，字母、数字、下划线"
+                           pattern="[a-zA-Z0-9_]{3,20}"
+                           autocomplete="username">
+                    <small class="form-hint">3-20个字符，只能包含字母、数字和下划线</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">密码</label>
+                    <input type="password" id="password" name="password" class="form-control" required
+                           placeholder="至少8位，包含字母和数字"
+                           minlength="8"
+                           autocomplete="new-password">
+                    <small class="form-hint">至少8位，必须包含字母和数字</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirmPassword">确认密码</label>
+                    <input type="password" id="confirmPassword" name="confirmPassword" class="form-control" required
+                           placeholder="请再次输入密码"
+                           autocomplete="new-password">
+                </div>
+
+                <div class="form-error" id="formError"></div>
+
+                <button type="submit" class="btn btn-primary btn-block">
+                    注册
+                </button>
+            </form>
+
+            <div class="auth-footer">
+                <p>已有账户？<a href="/login">立即登录</a></p>
+                <div class="auth-copyright">
+                    <p>© 2026 <a href="https://github.com/wangshengithub/ffmpeg-studio" target="_blank">FFmpeg Studio</a></p>
+                    <p>Powered by <a href="https://github.com/wangshengithub/ffmpeg-oneclick" target="_blank">ffmpeg-oneclick</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/api.js"></script>
+    <script>
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const errorEl = document.getElementById('formError');
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+
+            // 清除错误
+            errorEl.textContent = '';
+            errorEl.style.display = 'none';
+
+            // 验证密码
+            if (password !== confirmPassword) {
+                errorEl.textContent = '两次输入的密码不一致';
+                errorEl.style.display = 'block';
+                return;
+            }
+
+            // 验证密码复杂度
+            if (!/[a-zA-Z]/.test(password) || !/[0-9]/.test(password)) {
+                errorEl.textContent = '密码必须包含字母和数字';
+                errorEl.style.display = 'block';
+                return;
+            }
+
+            // 禁用按钮
+            submitBtn.disabled = true;
+            submitBtn.textContent = '注册中...';
+
+            try {
+                const result = await API.auth.register(username, password);
+
+                if (result.success) {
+                    // 跳转到等待审核页面
+                    window.location.href = '/pending';
+                } else {
+                    errorEl.textContent = result.message || '注册失败';
+                    errorEl.style.display = 'block';
+                }
+            } catch (error) {
+                errorEl.textContent = error.message || '注册失败，请稍后重试';
+                errorEl.style.display = 'block';
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = '注册';
+            }
+        });
+    </script>
+</body>
+</html>

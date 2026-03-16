@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FFmpeg Studio - 音视频处理平台</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="landing-page">
+        <!-- 导航栏 -->
+        <nav class="navbar">
+            <div class="nav-container">
+                <div class="nav-brand">
+                    <span class="logo">🎬</span>
+                    <span class="brand-text">FFmpeg Studio</span>
+                </div>
+                <div class="nav-links" id="navLinks">
+                    <a href="#features">功能特性</a>
+                    <a href="#supported">支持格式</a>
+                    <a href="/login" class="btn btn-outline" id="loginBtn">登录</a>
+                    <a href="/register" class="btn btn-primary" id="registerBtn">注册</a>
+                </div>
+            </div>
+        </nav>
+
+        <!-- 主区域 -->
+        <main>
+            <!-- Hero区域 -->
+            <section class="hero">
+                <div class="container">
+                    <h1>强大的音视频处理平台</h1>
+                    <p class="hero-subtitle">无需命令行，图形化操作 FFmpeg，轻松完成视频转换、压缩、剪辑等任务</p>
+                    <div class="hero-buttons" id="heroButtons">
+                        <a href="/register" class="btn btn-primary btn-lg" id="heroStartBtn">立即开始</a>
+                        <a href="#features" class="btn btn-outline btn-lg">了解更多</a>
+                    </div>
+                    <div class="hero-stats">
+                        <div class="stat">
+                            <span class="stat-number">12+</span>
+                            <span class="stat-label">处理功能</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-number">50+</span>
+                            <span class="stat-label">支持格式</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-number">GPU</span>
+                            <span class="stat-label">硬件加速</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 功能特性 -->
+            <section id="features" class="features">
+                <div class="container">
+                    <h2 class="section-title">功能特性</h2>
+                    <div class="features-grid">
+                        <div class="feature-card">
+                            <div class="feature-icon">🎥</div>
+                            <h3>视频转换</h3>
+                            <p>支持多种视频格式转换，可调整分辨率、码率、帧率</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">📦</div>
+                            <h3>视频压缩</h3>
+                            <p>智能压缩视频，在保持画质的同时减小文件体积</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">✂️</div>
+                            <h3>视频剪辑</h3>
+                            <p>精确裁剪视频片段，支持时间点设置</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">🔗</div>
+                            <h3>视频拼接</h3>
+                            <p>多个视频文件合并为一个，支持不同格式混合</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">🎞️</div>
+                            <h3>GIF制作</h3>
+                            <p>从视频中提取片段生成动图，可调整尺寸和帧率</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">🎵</div>
+                            <h3>音频提取</h3>
+                            <p>从视频中提取音频，支持MP3、AAC、WAV等格式</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">💧</div>
+                            <h3>水印添加</h3>
+                            <p>添加图片或文字水印，支持位置和透明度设置</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">📸</div>
+                            <h3>截图提取</h3>
+                            <p>从视频中提取单张或多张截图</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">📺</div>
+                            <h3>流媒体</h3>
+                            <p>生成HLS/DASH流媒体格式，适合在线播放</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 支持格式 -->
+            <section id="supported" class="supported">
+                <div class="container">
+                    <h2 class="section-title">支持的格式</h2>
+                    <div class="formats-grid">
+                        <div class="format-category">
+                            <h4>视频格式</h4>
+                            <div class="format-list">
+                                <span class="format-tag">MP4</span>
+                                <span class="format-tag">AVI</span>
+                                <span class="format-tag">MKV</span>
+                                <span class="format-tag">MOV</span>
+                                <span class="format-tag">WebM</span>
+                                <span class="format-tag">FLV</span>
+                                <span class="format-tag">MPEG</span>
+                                <span class="format-tag">TS</span>
+                            </div>
+                        </div>
+                        <div class="format-category">
+                            <h4>音频格式</h4>
+                            <div class="format-list">
+                                <span class="format-tag">MP3</span>
+                                <span class="format-tag">AAC</span>
+                                <span class="format-tag">WAV</span>
+                                <span class="format-tag">FLAC</span>
+                                <span class="format-tag">OGG</span>
+                                <span class="format-tag">M4A</span>
+                            </div>
+                        </div>
+                        <div class="format-category">
+                            <h4>图片格式</h4>
+                            <div class="format-list">
+                                <span class="format-tag">JPG</span>
+                                <span class="format-tag">PNG</span>
+                                <span class="format-tag">GIF</span>
+                                <span class="format-tag">WebP</span>
+                                <span class="format-tag">BMP</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 技术特性 -->
+            <section class="tech-features">
+                <div class="container">
+                    <h2 class="section-title">技术特性</h2>
+                    <div class="tech-grid">
+                        <div class="tech-item">
+                            <span class="tech-icon">⚡</span>
+                            <h4>硬件加速</h4>
+                            <p>支持 NVIDIA NVENC、Intel QSV、AMD VCE 等硬件加速</p>
+                        </div>
+                        <div class="tech-item">
+                            <span class="tech-icon">📊</span>
+                            <h4>实时进度</h4>
+                            <p>WebSocket 实时推送任务进度，随时了解处理状态</p>
+                        </div>
+                        <div class="tech-item">
+                            <span class="tech-icon">🔄</span>
+                            <h4>并发处理</h4>
+                            <p>支持多任务并发处理，提高处理效率</p>
+                        </div>
+                        <div class="tech-item">
+                            <span class="tech-icon">📋</span>
+                            <h4>预设模板</h4>
+                            <p>内置常用处理预设，支持自定义和分享</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- 页脚 -->
+        <footer class="footer">
+            <div class="container">
+                <div class="footer-content">
+                    <div class="footer-brand">
+                        <span class="logo">🎬</span>
+                        <span>FFmpeg Studio</span>
+                    </div>
+                    <div class="footer-links">
+                        <a href="https://github.com/wangshengithub/ffmpeg-studio" target="_blank">GitHub</a>
+                        <a href="https://github.com/wangshengithub/ffmpeg-oneclick" target="_blank">ffmpeg-oneclick</a>
+                        <a href="https://ffmpeg.org" target="_blank">FFmpeg</a>
+                    </div>
+                </div>
+                <div class="footer-bottom">
+                    <p>© 2026 <a href="https://github.com/wangshengithub/ffmpeg-studio" target="_blank">FFmpeg Studio</a>. Powered by <a href="https://github.com/wangshengithub/ffmpeg-oneclick" target="_blank">ffmpeg-oneclick</a>.</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script src="/js/app.js"></script>
+    <script>
+        // 检查登录状态并更新导航栏
+        document.addEventListener('DOMContentLoaded', () => {
+            const token = localStorage.getItem('token');
+            const userStr = localStorage.getItem('user');
+            const navLinks = document.getElementById('navLinks');
+            const heroButtons = document.getElementById('heroButtons');
+
+            if (token && userStr) {
+                try {
+                    const user = JSON.parse(userStr);
+
+                    // 更新导航栏
+                    navLinks.innerHTML = `
+                        <a href="#features">功能特性</a>
+                        <a href="#supported">支持格式</a>
+                        <span class="user-greeting">👋 ${user.username}</span>
+                        <a href="/dashboard" class="btn btn-primary">进入工作台</a>
+                    `;
+
+                    // 更新 hero 按钮
+                    if (heroButtons) {
+                        heroButtons.innerHTML = `
+                            <a href="/dashboard" class="btn btn-primary btn-lg">进入工作台</a>
+                            <a href="#features" class="btn btn-outline btn-lg">了解更多</a>
+                        `;
+                    }
+                } catch (e) {
+                    console.error('解析用户信息失败:', e);
+                }
+            }
+        });
+    </script>
+</body>
+</html>

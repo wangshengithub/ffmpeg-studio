@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>工作台 - FFmpeg Studio</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar dashboard-nav">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <a href="/dashboard">
+                    <span class="logo">🎬</span>
+                    <span class="brand-text">FFmpeg Studio</span>
+                </a>
+            </div>
+            <div class="nav-links">
+                <a href="/dashboard" class="active">工作台</a>
+                <a href="/presets">预设市场</a>
+                <a href="/admin" id="adminLink" style="display: none;">管理面板</a>
+                <span class="nav-divider"></span>
+                <span id="userInfo" class="user-info"></span>
+                <button id="changePasswordBtn" class="btn btn-sm btn-outline">修改密码</button>
+                <button id="logoutBtn" class="btn btn-sm btn-outline">退出</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主内容区 -->
+    <div class="dashboard-container">
+        <!-- 左侧：操作区 -->
+        <div class="dashboard-main">
+            <!-- 文件上传区 -->
+            <section class="card upload-section">
+                <h2 class="card-title">上传文件</h2>
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-icon">📁</div>
+                    <p class="upload-text">拖拽文件到此处，或点击选择文件</p>
+                    <input type="file" id="fileInput" multiple hidden>
+                    <button class="btn btn-outline" id="selectFileBtn">选择文件</button>
+                </div>
+                <div id="uploadProgress" class="upload-progress" style="display: none;">
+                    <div class="progress-bar">
+                        <div id="progressFill" class="progress-fill"></div>
+                    </div>
+                    <span id="progressText" class="progress-text">0%</span>
+                </div>
+                <div id="fileInfo" class="file-info" style="display: none;">
+                    <!-- 动态生成文件列表 -->
+                </div>
+            </section>
+
+            <!-- 任务配置区 -->
+            <section class="card config-section">
+                <h2 class="card-title">任务配置</h2>
+
+                <!-- 任务类型选择 -->
+                <div class="form-group">
+                    <label>任务类型</label>
+                    <div class="task-type-grid" id="taskTypeGrid">
+                        <button class="task-type-btn active" data-type="convert">
+                            <span class="type-icon">🎥</span>
+                            <span class="type-name">视频转换</span>
+                        </button>
+                        <button class="task-type-btn" data-type="compress">
+                            <span class="type-icon">📦</span>
+                            <span class="type-name">视频压缩</span>
+                        </button>
+                        <button class="task-type-btn" data-type="trim">
+                            <span class="type-icon">✂️</span>
+                            <span class="type-name">视频裁剪</span>
+                        </button>
+                        <button class="task-type-btn" data-type="concat">
+                            <span class="type-icon">🔗</span>
+                            <span class="type-name">视频拼接</span>
+                        </button>
+                        <button class="task-type-btn" data-type="gif">
+                            <span class="type-icon">🎞️</span>
+                            <span class="type-name">GIF制作</span>
+                        </button>
+                        <button class="task-type-btn" data-type="audioExtract">
+                            <span class="type-icon">🎵</span>
+                            <span class="type-name">音频提取</span>
+                        </button>
+                        <button class="task-type-btn" data-type="audioMix">
+                            <span class="type-icon">🎶</span>
+                            <span class="type-name">音频混合</span>
+                        </button>
+                        <button class="task-type-btn" data-type="watermark">
+                            <span class="type-icon">💧</span>
+                            <span class="type-name">图片水印</span>
+                        </button>
+                        <button class="task-type-btn" data-type="textWatermark">
+                            <span class="type-icon">📝</span>
+                            <span class="type-name">文字水印</span>
+                        </button>
+                        <button class="task-type-btn" data-type="screenshot">
+                            <span class="type-icon">📸</span>
+                            <span class="type-name">截图提取</span>
+                        </button>
+                        <button class="task-type-btn" data-type="hls">
+                            <span class="type-icon">📺</span>
+                            <span class="type-name">HLS流</span>
+                        </button>
+                        <button class="task-type-btn" data-type="dash">
+                            <span class="type-icon">📡</span>
+                            <span class="type-name">DASH流</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 预设选择 -->
+                <div class="form-group">
+                    <label>预设模板（可选）</label>
+                    <select id="presetSelect" class="form-control">
+                        <option value="">不使用预设</option>
+                    </select>
+                </div>
+
+                <!-- 动态配置区 -->
+                <div id="configPanel" class="config-panel">
+                    <!-- 根据任务类型动态生成 -->
+                </div>
+
+                <!-- 提交按钮 -->
+                <div class="form-actions">
+                    <button id="startTaskBtn" class="btn btn-primary btn-lg" disabled>
+                        开始处理
+                    </button>
+                </div>
+            </section>
+        </div>
+
+        <!-- 右侧：任务列表 -->
+        <div class="dashboard-sidebar">
+            <section class="card tasks-section">
+                <div class="tasks-header">
+                    <h2 class="card-title">任务列表</h2>
+                    <select id="taskFilter" class="form-control-sm">
+                        <option value="">全部</option>
+                        <option value="pending">等待中</option>
+                        <option value="processing">处理中</option>
+                        <option value="completed">已完成</option>
+                        <option value="failed">失败</option>
+                    </select>
+                </div>
+
+                <div id="taskList" class="task-list">
+                    <div class="empty-state">
+                        <p>暂无任务</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <!-- 预设模板模态框 -->
+    <div id="presetModal" class="modal">
+        <div class="modal-content modal-lg">
+            <div class="modal-header">
+                <h3>预设模板</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="preset-tabs">
+                    <button class="preset-tab active" data-tab="builtin">内置预设</button>
+                    <button class="preset-tab" data-tab="my">我的预设</button>
+                    <button class="preset-tab" data-tab="market">预设市场</button>
+                </div>
+                <div id="presetList" class="preset-list">
+                    <!-- 动态加载 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 任务详情模态框 -->
+    <div id="taskDetailModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>任务详情</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body" id="taskDetailBody">
+                <!-- 动态加载 -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline modal-cancel">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 修改密码模态框 -->
+    <div id="changePasswordModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>修改密码</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>原密码 *</label>
+                    <input type="password" id="oldPassword" class="form-control" placeholder="请输入原密码" required>
+                </div>
+                <div class="form-group">
+                    <label>新密码 *</label>
+                    <input type="password" id="newPassword" class="form-control" placeholder="至少6个字符" required>
+                </div>
+                <div class="form-group">
+                    <label>确认新密码 *</label>
+                    <input type="password" id="confirmPassword" class="form-control" placeholder="请再次输入新密码" required>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline modal-cancel">取消</button>
+                <button id="submitChangePasswordBtn" class="btn btn-primary">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/websocket.js"></script>
+    <script src="/js/app.js"></script>
+
+    <footer class="dashboard-footer">
+        <div class="auth-copyright">
+            <p>© 2026 <a href="https://github.com/wangshengithub/ffmpeg-studio" target="_blank">FFmpeg Studio</a></p>
+            <p>Powered by <a href="https://github.com/wangshengithub/ffmpeg-oneclick" target="_blank">ffmpeg-oneclick</a></p>
+        </div>
+    </footer>
+</body>
+</html>
